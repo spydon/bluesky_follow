@@ -7,6 +7,8 @@ own_account = ""
 own_password = ""
 other_account = ""
 
+min_followers = 50
+
 client = Client()
 client.login(own_account, own_password)
 cursor = ""
@@ -23,20 +25,30 @@ print(f"{own_account} is currently following {len(currently_following)} accounts
 cursor = ""
 followed = 0
 skipped_following = 0
+already_following = 0
+
 while True:
     data = client.get_followers(actor=other_account, cursor=cursor)
-    dids = map(lambda f: f.did, data.followers)
-    for did in dids:
+    users = data.followers
+    for user in users:
+        did = user.did
+        if min_followers > 0:
+            profile = client.get_profile(actor=did)
+            if profile.followers_count < min_followers:
+                skipped_following += 1
+                continue
         if did in currently_following:
-            skipped_following += 1
+            already_following += 1
             continue
         followed += 1
         client.follow(did)
-        time.sleep(2)
+        time.sleep(3)
     if data.cursor == None:
         break
     cursor = data.cursor
     print(f"Cursor: {cursor}")
 
-print(f"Done! Followed {followed} accounts and skipped {skipped_following}.")
+print(f"Done! Followed {followed} accounts.")
+print(f"Already followed {already_following} accounts.")
+print(f"Skipped following {skipped_following} accounts due to too low follower count (<{min_followers}).")
 
