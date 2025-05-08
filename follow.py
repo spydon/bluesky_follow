@@ -36,7 +36,7 @@ while True:
     if data.cursor == None:
         break
     cursor = data.cursor
-    print(cursor)
+    print(f"Cursor: {cursor}")
 
 print(f"Done! Followed {followed} accounts and skipped {skipped_following}.")
 
